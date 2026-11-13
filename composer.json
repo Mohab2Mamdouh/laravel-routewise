@@ -1,8 +1,25 @@
 {
     "name": "routewise/laravel",
     "description": "Turn a Laravel app into a safe MCP server: tools defined as data or generated from your routes, with kinds, a call log and a readiness scan.",
-    "keywords": ["laravel", "mcp", "ai", "agents", "tools"],
+    "keywords": [
+        "laravel",
+        "mcp",
+        "ai",
+        "agents",
+        "tools"
+    ],
     "license": "MIT",
+    "homepage": "https://github.com/Mohab2Mamdouh/laravel-routewise",
+    "support": {
+        "issues": "https://github.com/Mohab2Mamdouh/laravel-routewise/issues",
+        "source": "https://github.com/Mohab2Mamdouh/laravel-routewise"
+    },
+    "authors": [
+        {
+            "name": "Mohab Mamdouh",
+            "homepage": "https://mohabmamdouh.me"
+        }
+    ],
     "type": "library",
     "require": {
         "php": "^8.3",
