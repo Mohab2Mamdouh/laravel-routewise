@@ -31,8 +31,12 @@
         "laravel/mcp": "^1.1"
     },
     "require-dev": {
+        "anthropic-ai/sdk": "^1.8",
         "orchestra/testbench": "^10.8|^11.0",
         "phpunit/phpunit": "^11.5|^12.5"
+    },
+    "suggest": {
+        "anthropic-ai/sdk": "Needed for behaviour tests (php artisan routewise:behaviour)."
     },
     "autoload": {
         "psr-4": {

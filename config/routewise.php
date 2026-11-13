@@ -51,6 +51,23 @@ return [
     ],
 
     /*
+     | Behaviour tests (`php artisan routewise:behaviour`): each scenario's prompt is put to a model with the
+     | app's tools on offer, and the tools it calls are checked. No tool is run. Needs the Anthropic SDK
+     | (`composer require --dev anthropic-ai/sdk`) and an API key; every run costs tokens.
+     */
+    'behaviour' => [
+        // PHP files here return arrays of Routewise\Behaviour\Scenario objects.
+        'path' => base_path('routewise'),
+        'api_key' => env('ANTHROPIC_API_KEY'),
+        'model' => env('ROUTEWISE_BEHAVIOUR_MODEL', 'claude-opus-5-5'),
+        // low, medium, high, xhigh or max: how hard the model thinks before choosing.
+        'effort' => env('ROUTEWISE_BEHAVIOUR_EFFORT', 'medium'),
+        // The system prompt the model gets. Null uses a short default naming the app; set it to what your
+        // MCP server's own instructions say, so the test matches what real clients see.
+        'system' => null,
+    ],
+
+    /*
      | Hard rules, checked before the control plane's: 'block' a kind or a tool
      | here and no dashboard setting can allow it. Anything else is 'allow'.
      | Requiring approval is set on the control plane, where approvers decide.

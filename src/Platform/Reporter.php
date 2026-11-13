@@ -58,6 +58,35 @@ final class Reporter
     }
 
     /**
+     * Sends a behaviour run: per scenario its name, prompt, verdict, what was expected, the tools the model
+     * called with their arguments, and what was wrong. These are the test's own prompts and the model's
+     * answers to them, not anything a user of the app sent.
+     *
+     * @param  array<string, mixed>  $run  what Behaviour\Runner::run() returns
+     */
+    public function behaviour(array $run): void
+    {
+        $this->client->http(15)->post('/api/v1/behaviour', [
+            'model' => $run['model'],
+            'passed' => $run['passed'],
+            'failed' => $run['failed'],
+            'input_tokens' => $run['input_tokens'],
+            'output_tokens' => $run['output_tokens'],
+            'scenarios' => array_map(fn (array $s) => [
+                'name' => mb_substr($s['name'], 0, 200),
+                'prompt' => mb_substr($s['prompt'], 0, 2000),
+                'passed' => $s['passed'],
+                'expected' => mb_substr($s['expected'], 0, 1000),
+                'called' => array_map(fn (array $call) => [
+                    'tool' => $call['tool'],
+                    'arguments' => mb_substr((string) json_encode($call['arguments'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), 0, 1000),
+                ], array_slice($s['called'], 0, 20)),
+                'failures' => array_map(fn (string $f) => mb_substr($f, 0, 500), array_slice($s['failures'], 0, 20)),
+            ], $run['scenarios']),
+        ])->throw();
+    }
+
+    /**
      * @param  array<int, DefinedTool>  $tools
      * @return array<string, mixed> the platform's answer
      */

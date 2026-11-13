@@ -2,6 +2,9 @@
 
 namespace Routewise;
 
+use Routewise\Behaviour\ClaudeModel;
+use Routewise\Behaviour\Model;
+use Routewise\Console\BehaviourCommand;
 use Routewise\Console\ScanCommand;
 use Routewise\Console\SyncCommand;
 use Routewise\Events\ToolCalled;
@@ -19,6 +22,8 @@ class RoutewiseServiceProvider extends ServiceProvider
         $this->app->singleton(Client::class);
         $this->app->singleton(Reporter::class);
         $this->app->singleton(Guard::class);
+        // The model behaviour tests ask; rebind Model to test against something else.
+        $this->app->bind(Model::class, ClaudeModel::class);
     }
 
     public function boot(): void
@@ -28,7 +33,7 @@ class RoutewiseServiceProvider extends ServiceProvider
         $this->publishes([__DIR__.'/../resources/views' => resource_path('views/vendor/routewise')], 'routewise-views');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([ScanCommand::class, SyncCommand::class]);
+            $this->commands([ScanCommand::class, SyncCommand::class, BehaviourCommand::class]);
         }
 
         // The call log is buffered and sent after the response, so a slow control plane never slows a tool call.

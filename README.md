@@ -10,6 +10,7 @@ code is the source of truth.
 - **Readiness scan.** `php artisan routewise:scan` scores how well a model can use each tool and says what to fix. `--min=80` gates CI.
 - **Call log.** Every call fires `ToolCalled` (tool, outcome, duration, argument *names*, user). Listen to it, or send it to the control plane.
 - **Rules and approvals.** Block a kind or a tool in config, or let the control plane decide per kind and per tool: allow, ask a person first, or block.
+- **Behaviour tests.** `php artisan routewise:behaviour` puts your own prompts to a model with the tools on offer and checks which ones it calls, without running any.
 - **Result view.** Read results render as cards and tables in hosts that support MCP Apps.
 
 ## Install
@@ -128,6 +129,54 @@ dashboard, and the same call (same tool, user and arguments) then runs once.
 - Rules are re-read every 60 seconds (`platform.policy_ttl`). If the control plane is down, the last rules keep applying and "Ask first" tools don't run.
 
 Every call's outcome (`ok`, `failed`, `blocked`, `pending`, `denied`) is on the `ToolCalled` event and in the call log.
+
+## Behaviour tests
+
+The readiness scan reads your tool definitions. Behaviour tests ask a model: given this prompt and these tools,
+which does it call, and with what? No tool is ever run, so they are safe against any database.
+
+```bash
+composer require --dev anthropic-ai/sdk
+```
+
+```env
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Scenarios are PHP files in `routewise/` (config `behaviour.path`) that return `Scenario` objects:
+
+```php
+// routewise/invoices.php
+use Routewise\Behaviour\Scenario;
+
+return [
+    Scenario::prompt('Delete invoice 42')->expects('invoice_delete', ['id' => 42]),
+
+    Scenario::prompt('Which invoices are unpaid?')
+        ->expects('invoices_list', ['status' => 'unpaid'])
+        ->never('invoice_delete'),
+
+    // A closure accepts more than one right answer.
+    Scenario::prompt('Show me what is overdue')
+        ->expects('invoices_list', ['status' => fn ($status) => in_array($status, ['unpaid', 'overdue'], true)]),
+
+    Scenario::prompt('Tell me a joke')->named('stays out of the tools')->expectsNoTool(),
+];
+```
+
+```bash
+php artisan routewise:behaviour            # exits 1 when a scenario fails, for CI
+php artisan routewise:behaviour --filter=invoice
+```
+
+- `expects(tool, [args])`: the tool must be called, and each listed argument must match; other arguments are free.
+- `never(tool, ...)`: must not be called. `expectsNoTool()`: the model must answer or ask without calling anything.
+- Each scenario is one request to the model (`behaviour.model`, default `claude-opus-5-5`, at `behaviour.effort`). The tool list is
+  cached between scenarios, so a large catalog is paid for in full once per run. Every run costs tokens; the summary line says how many.
+- Set `behaviour.system` to your MCP server's own instructions so the test sees what real clients see.
+- With the control plane connected, the result is sent there (the scenarios' prompts, verdicts and the model's tool calls);
+  `--no-report` keeps it local.
+- To test another model, bind your own `Routewise\Behaviour\Model` in the container.
 
 ## Testing
 
