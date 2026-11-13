@@ -1,0 +1,6 @@
+# Left out of the package people install: only needed to work on it.
+/.github export-ignore
+/tests export-ignore
+/phpunit.xml export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
