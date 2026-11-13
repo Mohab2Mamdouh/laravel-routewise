@@ -1,8 +1,8 @@
 <?php
 
-namespace AgentTools\Tests\Fixtures;
+namespace Routewise\Tests\Fixtures;
 
-use AgentTools\Attributes\AgentTool;
+use Routewise\Attributes\AgentTool;
 use Illuminate\Http\Request;
 
 class PostController

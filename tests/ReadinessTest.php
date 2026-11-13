@@ -1,10 +1,10 @@
 <?php
 
-namespace AgentTools\Tests;
+namespace Routewise\Tests;
 
-use AgentTools\DefinedTool;
-use AgentTools\Field;
-use AgentTools\Readiness;
+use Routewise\DefinedTool;
+use Routewise\Field;
+use Routewise\Readiness;
 
 class ReadinessTest extends TestCase
 {
@@ -41,9 +41,9 @@ class ReadinessTest extends TestCase
 
     public function test_the_scan_command_can_gate_ci(): void
     {
-        \AgentTools\AgentTools::register(fn () => [DefinedTool::make('b_list', 'read', 'List.', [], fn () => [])]);
+        \Routewise\Routewise::register(fn () => [DefinedTool::make('b_list', 'read', 'List.', [], fn () => [])]);
 
-        $this->artisan('agent-tools:scan')->expectsOutputToContain('overall score 85/100')->assertSuccessful();
-        $this->artisan('agent-tools:scan', ['--min' => 90])->assertFailed();
+        $this->artisan('routewise:scan')->expectsOutputToContain('overall score 85/100')->assertSuccessful();
+        $this->artisan('routewise:scan', ['--min' => 90])->assertFailed();
     }
 }

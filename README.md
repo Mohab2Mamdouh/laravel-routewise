@@ -1,4 +1,4 @@
-# Laravel Agent Tools
+# Routewise for Laravel
 
 Turn a Laravel app into a safe MCP server for AI clients (claude.ai, Claude Code, any MCP host),
 on top of [`laravel/mcp`](https://github.com/laravel/mcp). No OpenAPI spec needed: the app's own
@@ -7,22 +7,22 @@ code is the source of truth.
 - **Tools as data.** One `Field` declaration gives the JSON Schema the model sees *and* the validation rules the call is checked against.
 - **Kinds.** Every tool is `read`, `write`, `delete` or `external`. The kind sets the MCP annotations; delete tools always ask for confirmation.
 - **Routes as tools.** Existing routes become tools: arguments come from the path and the FormRequest, and a call runs through the route's own middleware, validation and policies as the signed-in user.
-- **Readiness scan.** `php artisan agent-tools:scan` scores how well a model can use each tool and says what to fix. `--min=80` gates CI.
+- **Readiness scan.** `php artisan routewise:scan` scores how well a model can use each tool and says what to fix. `--min=80` gates CI.
 - **Call log.** Every call fires `ToolCalled` (tool, outcome, duration, argument *names*, user). Listen to it, or send it to the control plane.
 - **Result view.** Read results render as cards and tables in hosts that support MCP Apps.
 
 ## Install
 
 ```bash
-composer require mohab2mamdouh/laravel-agent-tools
-php artisan vendor:publish --tag=agent-tools-config
+composer require routewise/laravel
+php artisan vendor:publish --tag=routewise-config
 ```
 
 ## Define tools
 
 ```php
-use AgentTools\DefinedTool as T;
-use AgentTools\Field as F;
+use Routewise\DefinedTool as T;
+use Routewise\Field as F;
 
 class InvoiceTools
 {
@@ -44,16 +44,16 @@ class InvoiceTools
 Register the set (a service provider's `boot`) and hand the list to your server:
 
 ```php
-AgentTools::register(InvoiceTools::class);
+Routewise::register(InvoiceTools::class);
 
 class AppServer extends \Laravel\Mcp\Server
 {
-    protected array $resources = [\AgentTools\ResultView::class];
+    protected array $resources = [\Routewise\ResultView::class];
 
     public function __construct(\Laravel\Mcp\Server\Contracts\Transport $transport)
     {
         parent::__construct($transport);
-        $this->tools = \AgentTools\AgentTools::tools();
+        $this->tools = \Routewise\Routewise::tools();
     }
 }
 ```
@@ -63,7 +63,7 @@ A handler returns anything JSON-encodable. Throw a `RuntimeException` to tell th
 ## Routes as tools
 
 ```php
-// config/agent-tools.php
+// config/routewise.php
 'routes' => ['enabled' => true, 'include' => ['api/*'], 'exclude' => ['api/admin/*']],
 ```
 
@@ -91,8 +91,8 @@ Start with a narrow `include`.
 
 ## OAuth registration
 
-`laravel/mcp` checks redirect URIs by prefix. `AgentTools\Http\RestrictOAuthRedirects` accepts only the
-exact callbacks in `agent-tools.exact_redirect_uris`, plus http loopback addresses:
+`laravel/mcp` checks redirect URIs by prefix. `Routewise\Http\RestrictOAuthRedirects` accepts only the
+exact callbacks in `routewise.exact_redirect_uris`, plus http loopback addresses:
 
 ```php
 Route::middleware(RestrictOAuthRedirects::class)->group(fn () => Mcp::oauthRoutes());
@@ -101,13 +101,13 @@ Route::middleware(RestrictOAuthRedirects::class)->group(fn () => Mcp::oauthRoute
 ## Control plane (optional)
 
 ```env
-AGENT_TOOLS_URL=https://your-control-plane.example
-AGENT_TOOLS_TOKEN=project-token
+ROUTEWISE_URL=https://your-control-plane.example
+ROUTEWISE_TOKEN=project-token
 ```
 
-`php artisan agent-tools:sync` (run on deploy) sends the tool catalog with its scores; calls are sent after each
+`php artisan routewise:sync` (run on deploy) sends the tool catalog with its scores; calls are sent after each
 response. Only metadata leaves the app: argument values and results are never sent, and error messages only
-with `AGENT_TOOLS_SEND_ERRORS=true`.
+with `ROUTEWISE_SEND_ERRORS=true`.
 
 ## Testing
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace AgentTools\Http;
+namespace Routewise\Http;
 
 use Closure;
 use Illuminate\Http\Request;
@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
  * laravel/mcp only checks that a redirect URI *starts with* an allowed domain, so
  * any path on an allowed host would pass, including an open redirect there. Client
  * registration here accepts exactly the listed OAuth callbacks
- * (config agent-tools.exact_redirect_uris), plus loopback addresses on any port
+ * (config routewise.exact_redirect_uris), plus loopback addresses on any port
  * for local clients such as Claude Code.
  */
 class RestrictOAuthRedirects
@@ -33,7 +33,7 @@ class RestrictOAuthRedirects
 
     public static function allowed(string $uri): bool
     {
-        if (in_array($uri, config('agent-tools.exact_redirect_uris', []), true)) {
+        if (in_array($uri, config('routewise.exact_redirect_uris', []), true)) {
             return true;
         }
 

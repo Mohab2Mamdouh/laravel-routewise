@@ -1,8 +1,8 @@
 <?php
 
-namespace AgentTools\Tests;
+namespace Routewise\Tests;
 
-use AgentTools\Field;
+use Routewise\Field;
 use Illuminate\JsonSchema\JsonSchema;
 
 class FieldTest extends TestCase

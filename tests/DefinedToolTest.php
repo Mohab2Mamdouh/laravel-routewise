@@ -1,11 +1,11 @@
 <?php
 
-namespace AgentTools\Tests;
+namespace Routewise\Tests;
 
-use AgentTools\DefinedTool;
-use AgentTools\Events\ToolCalled;
-use AgentTools\Field;
-use AgentTools\ResultView;
+use Routewise\DefinedTool;
+use Routewise\Events\ToolCalled;
+use Routewise\Field;
+use Routewise\ResultView;
 use Illuminate\Support\Facades\Event;
 use InvalidArgumentException;
 use RuntimeException;

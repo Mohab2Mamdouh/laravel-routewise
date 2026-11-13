@@ -1,6 +1,6 @@
 <?php
 
-namespace AgentTools;
+namespace Routewise;
 
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
@@ -17,12 +17,12 @@ use Laravel\Mcp\Server\Attributes\Description;
 #[Description('Renders a tool result as cards and tables.')]
 class ResultView extends AppResource
 {
-    public const URI = 'ui://agent-tools/result';
+    public const URI = 'ui://routewise/result';
 
     protected string $uri = self::URI;
 
     public function handle(Request $request): Response
     {
-        return Response::view('agent-tools::result-view', ['title' => config('agent-tools.name') ?: config('app.name', 'Tools')]);
+        return Response::view('routewise::result-view', ['title' => config('routewise.name') ?: config('app.name', 'Tools')]);
     }
 }

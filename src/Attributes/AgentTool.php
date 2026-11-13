@@ -1,6 +1,6 @@
 <?php
 
-namespace AgentTools\Attributes;
+namespace Routewise\Attributes;
 
 use Attribute;
 

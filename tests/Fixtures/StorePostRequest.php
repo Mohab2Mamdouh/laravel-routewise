@@ -1,6 +1,6 @@
 <?php
 
-namespace AgentTools\Tests\Fixtures;
+namespace Routewise\Tests\Fixtures;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;

@@ -1,11 +1,11 @@
 <?php
 
-namespace AgentTools\Tests;
+namespace Routewise\Tests;
 
-use AgentTools\AgentTools;
-use AgentTools\DefinedTool;
-use AgentTools\Field;
-use AgentTools\Platform\Reporter;
+use Routewise\Routewise;
+use Routewise\DefinedTool;
+use Routewise\Field;
+use Routewise\Platform\Reporter;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -24,12 +24,12 @@ class ReporterTest extends TestCase
         app(Reporter::class)->flush();
 
         Http::assertNothingSent();
-        $this->artisan('agent-tools:sync')->assertFailed();
+        $this->artisan('routewise:sync')->assertFailed();
     }
 
     public function test_calls_are_sent_after_the_request_without_values_or_error_text(): void
     {
-        config(['agent-tools.platform' => ['url' => 'https://plane.test/', 'token' => 'tok', 'send_errors' => false]]);
+        config(['routewise.platform' => ['url' => 'https://plane.test/', 'token' => 'tok', 'send_errors' => false]]);
         Http::fake(['*' => Http::response(['ok' => true])]);
 
         $this->invoke($this->tool(), ['text' => 'private words']);
@@ -51,7 +51,7 @@ class ReporterTest extends TestCase
 
     public function test_a_control_plane_that_is_down_never_breaks_the_app(): void
     {
-        config(['agent-tools.platform' => ['url' => 'https://plane.test', 'token' => 'tok']]);
+        config(['routewise.platform' => ['url' => 'https://plane.test', 'token' => 'tok']]);
         Http::fake(fn () => throw new \Illuminate\Http\Client\ConnectionException('down'));
 
         $this->assertSame([true, ['id' => 1]], $this->invoke($this->tool(), ['text' => 'hi']));
@@ -61,11 +61,11 @@ class ReporterTest extends TestCase
 
     public function test_sync_sends_the_catalog_with_schemas_and_scores(): void
     {
-        config(['agent-tools.platform' => ['url' => 'https://plane.test', 'token' => 'tok'], 'agent-tools.name' => 'Notes']);
+        config(['routewise.platform' => ['url' => 'https://plane.test', 'token' => 'tok'], 'routewise.name' => 'Notes']);
         Http::fake(['*' => Http::response(['ok' => true])]);
-        AgentTools::register(fn () => [$this->tool()]);
+        Routewise::register(fn () => [$this->tool()]);
 
-        $this->artisan('agent-tools:sync')->expectsOutputToContain('1 tools sent.')->assertSuccessful();
+        $this->artisan('routewise:sync')->expectsOutputToContain('1 tools sent.')->assertSuccessful();
 
         Http::assertSent(fn (Request $r) => $r->url() === 'https://plane.test/api/v1/catalog' && $r['app'] === 'Notes' && $r['score'] === 100
             && $r['tools'][0]['name'] === 'notes_add' && $r['tools'][0]['kind'] === 'write'

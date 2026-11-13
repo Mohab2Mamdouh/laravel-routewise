@@ -1,10 +1,10 @@
 <?php
 
-namespace AgentTools\Platform;
+namespace Routewise\Platform;
 
-use AgentTools\DefinedTool;
-use AgentTools\Events\ToolCalled;
-use AgentTools\Readiness;
+use Routewise\DefinedTool;
+use Routewise\Events\ToolCalled;
+use Routewise\Readiness;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Throwable;
@@ -22,7 +22,7 @@ final class Reporter
 
     public function enabled(): bool
     {
-        return (string) config('agent-tools.platform.token') !== '' && (string) config('agent-tools.platform.url') !== '';
+        return (string) config('routewise.platform.token') !== '' && (string) config('routewise.platform.url') !== '';
     }
 
     public function record(ToolCalled $call): void
@@ -32,7 +32,7 @@ final class Reporter
             'kind' => $call->kind,
             'ok' => $call->ok,
             // An error message can quote input; it is sent only when the app opts in.
-            'error' => config('agent-tools.platform.send_errors') ? mb_substr((string) $call->error, 0, 500) : null,
+            'error' => config('routewise.platform.send_errors') ? mb_substr((string) $call->error, 0, 500) : null,
             'duration_ms' => $call->durationMs,
             'arguments' => $call->argumentKeys,
             'user' => $call->userId === null ? null : (string) $call->userId,
@@ -65,7 +65,7 @@ final class Reporter
         $report = Readiness::server($tools);
 
         return $this->http(15)->post('/api/v1/catalog', [
-            'app' => config('agent-tools.name') ?: config('app.name'),
+            'app' => config('routewise.name') ?: config('app.name'),
             'score' => $report['score'],
             'issues' => $report['issues'],
             'tools' => collect($tools)->unique(fn (DefinedTool $t) => $t->name())->map(fn (DefinedTool $t) => [
@@ -82,8 +82,8 @@ final class Reporter
     private function http(int $timeout): PendingRequest
     {
         // The token is a credential: never follow a redirect with it.
-        return Http::baseUrl(rtrim((string) config('agent-tools.platform.url'), '/'))
-            ->withToken((string) config('agent-tools.platform.token'))
+        return Http::baseUrl(rtrim((string) config('routewise.platform.url'), '/'))
+            ->withToken((string) config('routewise.platform.token'))
             ->acceptJson()
             ->withoutRedirecting()
             ->timeout($timeout);

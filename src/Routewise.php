@@ -1,27 +1,27 @@
 <?php
 
-namespace AgentTools;
+namespace Routewise;
 
 use Closure;
 use InvalidArgumentException;
 
 /**
  * The app's tool list. Register tool sets in a service provider, then hand
- * `AgentTools::tools()` to your MCP server:
+ * `Routewise::tools()` to your MCP server:
  *
- *     AgentTools::register(InvoiceTools::class);          // a class with all(): DefinedTool[]
- *     AgentTools::register(fn () => [DefinedTool::make(...)]);
+ *     Routewise::register(InvoiceTools::class);          // a class with all(): DefinedTool[]
+ *     Routewise::register(fn () => [DefinedTool::make(...)]);
  *
  *     class AppServer extends \Laravel\Mcp\Server {
  *         public function __construct(Transport $transport) {
  *             parent::__construct($transport);
- *             $this->tools = AgentTools::tools();
+ *             $this->tools = Routewise::tools();
  *         }
  *     }
  *
  * Sets are resolved on every call, so a closure can decide per signed-in user what to list.
  */
-final class AgentTools
+final class Routewise
 {
     /** @var array<int, Closure|class-string> */
     private static array $sets = [];
@@ -44,7 +44,7 @@ final class AgentTools
                 $tools[$tool->name()] ??= $tool;
             }
         }
-        if (config('agent-tools.routes.enabled')) {
+        if (config('routewise.routes.enabled')) {
             foreach (app(RouteTools::class)->all() as $tool) {
                 $tools[$tool->name()] ??= $tool;
             }

@@ -1,6 +1,6 @@
 <?php
 
-namespace AgentTools\Events;
+namespace Routewise\Events;
 
 /** Fired after every tool call, whether it succeeded or not. Listen to it for your own audit log. */
 final class ToolCalled

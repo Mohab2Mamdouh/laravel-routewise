@@ -3,10 +3,10 @@
 return [
 
     // Shown as the title of the result view and as the app's name in the control plane. Defaults to app.name.
-    'name' => env('AGENT_TOOLS_NAME'),
+    'name' => env('ROUTEWISE_NAME'),
 
     // Render read results as cards and tables in hosts that support MCP Apps (claude.ai).
-    // Needs AgentTools\ResultView in your server's $resources.
+    // Needs Routewise\ResultView in your server's $resources.
     'result_view' => true,
 
     /*
@@ -23,7 +23,7 @@ return [
 
     /*
      | OAuth client registration accepts exactly these redirect URIs, plus http
-     | loopback addresses (AgentTools\Http\RestrictOAuthRedirects). laravel/mcp's
+     | loopback addresses (Routewise\Http\RestrictOAuthRedirects). laravel/mcp's
      | own redirect_domains is a looser prefix check.
      */
     'exact_redirect_uris' => [
@@ -32,15 +32,15 @@ return [
     ],
 
     /*
-     | The control plane (optional). With a project token set, `agent-tools:sync`
+     | The control plane (optional). With a project token set, `routewise:sync`
      | sends the tool catalog and every call is logged there: tool, outcome,
      | duration, argument names and user id. Argument values and results are
      | never sent; error messages only when send_errors is on.
      */
     'platform' => [
-        'url' => env('AGENT_TOOLS_URL'),
-        'token' => env('AGENT_TOOLS_TOKEN'),
-        'send_errors' => env('AGENT_TOOLS_SEND_ERRORS', false),
+        'url' => env('ROUTEWISE_URL'),
+        'token' => env('ROUTEWISE_TOKEN'),
+        'send_errors' => env('ROUTEWISE_SEND_ERRORS', false),
     ],
 
 ];

@@ -1,6 +1,6 @@
 <?php
 
-namespace AgentTools;
+namespace Routewise;
 
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\JsonSchema\Types\Type;

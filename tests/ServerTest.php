@@ -1,12 +1,12 @@
 <?php
 
-namespace AgentTools\Tests;
+namespace Routewise\Tests;
 
-use AgentTools\AgentTools;
-use AgentTools\DefinedTool;
-use AgentTools\Field;
-use AgentTools\Http\RestrictOAuthRedirects;
-use AgentTools\ResultView;
+use Routewise\Routewise;
+use Routewise\DefinedTool;
+use Routewise\Field;
+use Routewise\Http\RestrictOAuthRedirects;
+use Routewise\ResultView;
 use Laravel\Mcp\Facades\Mcp;
 use Laravel\Mcp\Server;
 use Laravel\Mcp\Server\Contracts\Transport;
@@ -18,7 +18,7 @@ class DemoServer extends Server
     public function __construct(Transport $transport)
     {
         parent::__construct($transport);
-        $this->tools = AgentTools::tools();
+        $this->tools = Routewise::tools();
     }
 }
 
@@ -36,7 +36,7 @@ class ServerTest extends TestCase
 
     public function test_a_server_lists_and_runs_the_tools_and_serves_the_result_view(): void
     {
-        AgentTools::register(fn () => [
+        Routewise::register(fn () => [
             DefinedTool::make('sum', 'read', 'Add two whole numbers and return the total.', ['a' => Field::int('First')->required(), 'b' => Field::int('Second')->required()], fn ($x) => ['total' => $x['a'] + $x['b']]),
         ]);
 

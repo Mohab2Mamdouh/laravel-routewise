@@ -1,8 +1,8 @@
 <?php
 
-namespace AgentTools;
+namespace Routewise;
 
-use AgentTools\Attributes\AgentTool;
+use Routewise\Attributes\AgentTool;
 use Closure;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -48,10 +48,10 @@ final class RouteTools
     private function tool(Route $route): ?DefinedTool
     {
         $uri = ltrim($route->uri(), '/');
-        $method = collect($route->methods())->first(fn ($m) => in_array($m, (array) config('agent-tools.routes.methods', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']), true));
+        $method = collect($route->methods())->first(fn ($m) => in_array($m, (array) config('routewise.routes.methods', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']), true));
         if ($method === null
-            || ! Str::is((array) config('agent-tools.routes.include', ['api/*']), $uri)
-            || Str::is((array) config('agent-tools.routes.exclude', []), $uri)) {
+            || ! Str::is((array) config('routewise.routes.include', ['api/*']), $uri)
+            || Str::is((array) config('routewise.routes.exclude', []), $uri)) {
             return null;
         }
 

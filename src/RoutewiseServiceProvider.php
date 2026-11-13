@@ -1,27 +1,27 @@
 <?php
 
-namespace AgentTools;
+namespace Routewise;
 
-use AgentTools\Console\ScanCommand;
-use AgentTools\Console\SyncCommand;
-use AgentTools\Events\ToolCalled;
-use AgentTools\Platform\Reporter;
+use Routewise\Console\ScanCommand;
+use Routewise\Console\SyncCommand;
+use Routewise\Events\ToolCalled;
+use Routewise\Platform\Reporter;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
-class AgentToolsServiceProvider extends ServiceProvider
+class RoutewiseServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/agent-tools.php', 'agent-tools');
+        $this->mergeConfigFrom(__DIR__.'/../config/routewise.php', 'routewise');
         $this->app->singleton(Reporter::class);
     }
 
     public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'agent-tools');
-        $this->publishes([__DIR__.'/../config/agent-tools.php' => config_path('agent-tools.php')], 'agent-tools-config');
-        $this->publishes([__DIR__.'/../resources/views' => resource_path('views/vendor/agent-tools')], 'agent-tools-views');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'routewise');
+        $this->publishes([__DIR__.'/../config/routewise.php' => config_path('routewise.php')], 'routewise-config');
+        $this->publishes([__DIR__.'/../resources/views' => resource_path('views/vendor/routewise')], 'routewise-views');
 
         if ($this->app->runningInConsole()) {
             $this->commands([ScanCommand::class, SyncCommand::class]);

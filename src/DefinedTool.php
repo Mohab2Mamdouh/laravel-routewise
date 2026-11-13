@@ -1,8 +1,8 @@
 <?php
 
-namespace AgentTools;
+namespace Routewise;
 
-use AgentTools\Events\ToolCalled;
+use Routewise\Events\ToolCalled;
 use Closure;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Validator;
@@ -45,7 +45,7 @@ class DefinedTool extends Tool
             : $description;
 
         // MCP Apps hosts (claude.ai) draw read results with ResultView; others ignore this.
-        if (in_array($kind, ['read', 'external'], true) && config('agent-tools.result_view', true)) {
+        if (in_array($kind, ['read', 'external'], true) && config('routewise.result_view', true)) {
             $this->setMeta('ui', ['resourceUri' => ResultView::URI, 'visibility' => ['model', 'app']]);
         }
     }

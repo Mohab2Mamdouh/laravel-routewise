@@ -1,5 +1,5 @@
 {
-    "name": "mohab2mamdouh/laravel-agent-tools",
+    "name": "routewise/laravel",
     "description": "Turn a Laravel app into a safe MCP server: tools defined as data or generated from your routes, with kinds, a call log and a readiness scan.",
     "keywords": ["laravel", "mcp", "ai", "agents", "tools"],
     "license": "MIT",
@@ -19,18 +19,18 @@
     },
     "autoload": {
         "psr-4": {
-            "AgentTools\\": "src/"
+            "Routewise\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "AgentTools\\Tests\\": "tests/"
+            "Routewise\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "AgentTools\\AgentToolsServiceProvider"
+                "Routewise\\RoutewiseServiceProvider"
             ]
         }
     },

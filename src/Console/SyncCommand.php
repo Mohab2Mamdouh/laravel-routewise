@@ -1,28 +1,28 @@
 <?php
 
-namespace AgentTools\Console;
+namespace Routewise\Console;
 
-use AgentTools\AgentTools;
-use AgentTools\Platform\Reporter;
+use Routewise\Routewise;
+use Routewise\Platform\Reporter;
 use Illuminate\Console\Command;
 use Throwable;
 
 class SyncCommand extends Command
 {
-    protected $signature = 'agent-tools:sync';
+    protected $signature = 'routewise:sync';
 
     protected $description = 'Send the tool catalog and its readiness scores to the control plane (run on deploy)';
 
     public function handle(Reporter $reporter): int
     {
         if (! $reporter->enabled()) {
-            $this->error('Set AGENT_TOOLS_URL and AGENT_TOOLS_TOKEN first.');
+            $this->error('Set ROUTEWISE_URL and ROUTEWISE_TOKEN first.');
 
             return self::FAILURE;
         }
 
         try {
-            $tools = AgentTools::tools();
+            $tools = Routewise::tools();
             $reporter->sync($tools);
         } catch (Throwable $e) {
             $this->error('Sync failed: '.$e->getMessage());

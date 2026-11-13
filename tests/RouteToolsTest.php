@@ -1,10 +1,10 @@
 <?php
 
-namespace AgentTools\Tests;
+namespace Routewise\Tests;
 
-use AgentTools\AgentTools;
-use AgentTools\DefinedTool;
-use AgentTools\Tests\Fixtures\PostController;
+use Routewise\Routewise;
+use Routewise\DefinedTool;
+use Routewise\Tests\Fixtures\PostController;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Route;
@@ -27,13 +27,13 @@ class RouteToolsTest extends TestCase
 
     protected function defineEnvironment($app): void
     {
-        $app['config']->set('agent-tools.routes', ['enabled' => true, 'include' => ['api/*'], 'exclude' => ['api/internal/*'], 'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']]);
+        $app['config']->set('routewise.routes', ['enabled' => true, 'include' => ['api/*'], 'exclude' => ['api/internal/*'], 'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']]);
     }
 
     /** @return array<string, DefinedTool> */
     private function tools(): array
     {
-        return collect(AgentTools::tools())->keyBy(fn (DefinedTool $t) => $t->name())->all();
+        return collect(Routewise::tools())->keyBy(fn (DefinedTool $t) => $t->name())->all();
     }
 
     private function signIn(): void
@@ -97,10 +97,10 @@ class RouteToolsTest extends TestCase
 
     public function test_routes_are_not_listed_unless_enabled_and_registered_sets_win(): void
     {
-        AgentTools::register(fn () => [DefinedTool::make('posts_index', 'read', 'Mine.', [], fn () => 'mine')]);
+        Routewise::register(fn () => [DefinedTool::make('posts_index', 'read', 'Mine.', [], fn () => 'mine')]);
         $this->assertSame('Mine.', $this->tools()['posts_index']->description());
 
-        config(['agent-tools.routes.enabled' => false]);
+        config(['routewise.routes.enabled' => false]);
         $this->assertSame(['posts_index'], array_keys($this->tools()));
     }
 }

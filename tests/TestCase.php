@@ -1,10 +1,10 @@
 <?php
 
-namespace AgentTools\Tests;
+namespace Routewise\Tests;
 
-use AgentTools\AgentTools;
-use AgentTools\AgentToolsServiceProvider;
-use AgentTools\DefinedTool;
+use Routewise\Routewise;
+use Routewise\RoutewiseServiceProvider;
+use Routewise\DefinedTool;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Server\McpServiceProvider;
 use Orchestra\Testbench\TestCase as Testbench;
@@ -13,12 +13,12 @@ abstract class TestCase extends Testbench
 {
     protected function getPackageProviders($app): array
     {
-        return [McpServiceProvider::class, AgentToolsServiceProvider::class];
+        return [McpServiceProvider::class, RoutewiseServiceProvider::class];
     }
 
     protected function tearDown(): void
     {
-        AgentTools::flush();
+        Routewise::flush();
         parent::tearDown();
     }
 
