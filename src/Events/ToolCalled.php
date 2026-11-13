@@ -16,5 +16,7 @@ final class ToolCalled
         public readonly int $durationMs,
         public readonly array $argumentKeys,
         public readonly int|string|null $userId,
+        /** ok, failed, blocked (by a rule), pending (waiting for approval) or denied (by an approver) */
+        public readonly string $outcome = 'ok',
     ) {}
 }

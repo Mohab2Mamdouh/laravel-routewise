@@ -9,6 +9,7 @@ code is the source of truth.
 - **Routes as tools.** Existing routes become tools: arguments come from the path and the FormRequest, and a call runs through the route's own middleware, validation and policies as the signed-in user.
 - **Readiness scan.** `php artisan routewise:scan` scores how well a model can use each tool and says what to fix. `--min=80` gates CI.
 - **Call log.** Every call fires `ToolCalled` (tool, outcome, duration, argument *names*, user). Listen to it, or send it to the control plane.
+- **Rules and approvals.** Block a kind or a tool in config, or let the control plane decide per kind and per tool: allow, ask a person first, or block.
 - **Result view.** Read results render as cards and tables in hosts that support MCP Apps.
 
 ## Install
@@ -106,8 +107,27 @@ ROUTEWISE_TOKEN=project-token
 ```
 
 `php artisan routewise:sync` (run on deploy) sends the tool catalog with its scores; calls are sent after each
-response. Only metadata leaves the app: argument values and results are never sent, and error messages only
-with `ROUTEWISE_SEND_ERRORS=true`.
+response. Only metadata leaves the app: results are never sent, error messages only with
+`ROUTEWISE_SEND_ERRORS=true`, and argument values only for approvals with `ROUTEWISE_APPROVAL_VALUES=true`.
+
+## Rules and approvals
+
+Hard rules live in the app and can't be overridden from anywhere:
+
+```php
+// config/routewise.php
+'policy' => ['kinds' => ['delete' => 'block'], 'tools' => ['payroll_run' => 'block']],
+```
+
+With the control plane connected, its dashboard sets a rule per kind and per tool: **Allow**, **Ask first** or **Block**.
+A call to an "Ask first" tool does not run. The model is told it needs approval, an approver decides on the
+dashboard, and the same call (same tool, user and arguments) then runs once.
+
+- Approvers see the tool, the user id and the argument names. Set `ROUTEWISE_APPROVAL_VALUES=true` to show them the values too; that is the one case where argument values leave the app.
+- A retry is matched to its approval by an HMAC of the arguments made with your `APP_KEY`, so the control plane can't recover the values from it.
+- Rules are re-read every 60 seconds (`platform.policy_ttl`). If the control plane is down, the last rules keep applying and "Ask first" tools don't run.
+
+Every call's outcome (`ok`, `failed`, `blocked`, `pending`, `denied`) is on the `ToolCalled` event and in the call log.
 
 ## Testing
 

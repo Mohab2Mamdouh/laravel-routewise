@@ -41,6 +41,27 @@ return [
         'url' => env('ROUTEWISE_URL'),
         'token' => env('ROUTEWISE_TOKEN'),
         'send_errors' => env('ROUTEWISE_SEND_ERRORS', false),
+
+        // Approval rules set on the control plane are re-read this often (seconds).
+        'policy_ttl' => 60,
+
+        // Show approvers the argument values of a call that waits for approval.
+        // Off: they see the tool, the user and the argument names only.
+        'approval_values' => env('ROUTEWISE_APPROVAL_VALUES', false),
+    ],
+
+    /*
+     | Hard rules, checked before the control plane's: 'block' a kind or a tool
+     | here and no dashboard setting can allow it. Anything else is 'allow'.
+     | Requiring approval is set on the control plane, where approvers decide.
+     */
+    'policy' => [
+        'kinds' => [
+            // 'delete' => 'block',
+        ],
+        'tools' => [
+            // 'invoice_delete' => 'block',
+        ],
     ],
 
 ];

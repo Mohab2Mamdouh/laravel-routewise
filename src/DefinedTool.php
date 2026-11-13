@@ -3,6 +3,7 @@
 namespace Routewise;
 
 use Routewise\Events\ToolCalled;
+use Routewise\Platform\Guard;
 use Closure;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\Validator;
@@ -85,6 +86,7 @@ class DefinedTool extends Tool
     {
         $started = hrtime(true);
         $error = null;
+        $outcome = 'ok';
 
         try {
             $rules = [];
@@ -100,14 +102,25 @@ class DefinedTool extends Tool
                 }
             }
 
+            // The workspace's rules: blocked tools stop here, and tools that need approval wait for it.
+            if ($stop = app(Guard::class)->check($this, $args)) {
+                $outcome = $stop['outcome'];
+
+                return Response::error($error = $stop['message']);
+            }
+
             return self::result(($this->handler)($args));
         } catch (ValidationException $e) {
+            $outcome = 'failed';
+
             return Response::error($error = collect($e->errors())->flatten()->implode(' '));
         } catch (Throwable $e) {
             // Remote/API and input errors are expected; only report real bugs.
             if (! $e instanceof \RuntimeException && ! $e instanceof \InvalidArgumentException) {
                 report($e);
             }
+
+            $outcome = 'failed';
 
             return Response::error($error = $e->getMessage());
         } finally {
@@ -120,6 +133,7 @@ class DefinedTool extends Tool
                 (int) round((hrtime(true) - $started) / 1e6),
                 array_keys($request->all()),
                 auth()->id(),
+                $outcome,
             ));
         }
     }

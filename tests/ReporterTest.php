@@ -34,15 +34,18 @@ class ReporterTest extends TestCase
 
         $this->invoke($this->tool(), ['text' => 'private words']);
         $this->invoke($this->tool(), ['text' => 'boom']);
-        Http::assertNothingSent();
+        Http::assertNotSent(fn (Request $r) => str_ends_with($r->url(), '/calls'));
         app(Reporter::class)->flush();
         app(Reporter::class)->flush();
 
-        Http::assertSentCount(1);
+        $this->assertCount(1, Http::recorded(fn (Request $r) => str_ends_with($r->url(), '/calls')));
         Http::assertSent(function (Request $r) {
+            if (! str_ends_with($r->url(), '/calls')) {
+                return false;
+            }
             $calls = $r['calls'];
 
-            return $r->url() === 'https://plane.test/api/v1/calls' && $r->hasHeader('Authorization', 'Bearer tok')
+            return $r->url() === 'https://plane.test/api/v1/calls' && $calls[0]['outcome'] === 'ok' && $calls[1]['outcome'] === 'failed' && $r->hasHeader('Authorization', 'Bearer tok')
                 && count($calls) === 2 && $calls[0]['ok'] && $calls[0]['arguments'] === ['text'] && $calls[0]['tool'] === 'notes_add'
                 && ! $calls[1]['ok'] && $calls[1]['error'] === null
                 && ! str_contains($r->body(), 'private words') && ! str_contains($r->body(), '4111');

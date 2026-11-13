@@ -5,8 +5,6 @@ namespace Routewise\Platform;
 use Routewise\DefinedTool;
 use Routewise\Events\ToolCalled;
 use Routewise\Readiness;
-use Illuminate\Http\Client\PendingRequest;
-use Illuminate\Support\Facades\Http;
 use Throwable;
 
 /**
@@ -20,9 +18,11 @@ final class Reporter
     /** @var array<int, array<string, mixed>> */
     private array $calls = [];
 
+    public function __construct(private Client $client) {}
+
     public function enabled(): bool
     {
-        return (string) config('routewise.platform.token') !== '' && (string) config('routewise.platform.url') !== '';
+        return $this->client->enabled();
     }
 
     public function record(ToolCalled $call): void
@@ -31,6 +31,7 @@ final class Reporter
             'tool' => $call->tool,
             'kind' => $call->kind,
             'ok' => $call->ok,
+            'outcome' => $call->outcome,
             // An error message can quote input; it is sent only when the app opts in.
             'error' => config('routewise.platform.send_errors') ? mb_substr((string) $call->error, 0, 500) : null,
             'duration_ms' => $call->durationMs,
@@ -50,7 +51,7 @@ final class Reporter
         $this->calls = [];
 
         try {
-            $this->http(3)->post('/api/v1/calls', ['calls' => $calls]);
+            $this->client->http(3)->post('/api/v1/calls', ['calls' => $calls]);
         } catch (Throwable) {
             //
         }
@@ -64,7 +65,7 @@ final class Reporter
     {
         $report = Readiness::server($tools);
 
-        return $this->http(15)->post('/api/v1/catalog', [
+        return $this->client->http(15)->post('/api/v1/catalog', [
             'app' => config('routewise.name') ?: config('app.name'),
             'score' => $report['score'],
             'issues' => $report['issues'],
@@ -77,15 +78,5 @@ final class Reporter
                 'issues' => $report['tools'][$t->name()]['issues'],
             ])->values()->all(),
         ])->throw()->json() ?? [];
-    }
-
-    private function http(int $timeout): PendingRequest
-    {
-        // The token is a credential: never follow a redirect with it.
-        return Http::baseUrl(rtrim((string) config('routewise.platform.url'), '/'))
-            ->withToken((string) config('routewise.platform.token'))
-            ->acceptJson()
-            ->withoutRedirecting()
-            ->timeout($timeout);
     }
 }

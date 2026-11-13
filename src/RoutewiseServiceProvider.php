@@ -5,6 +5,8 @@ namespace Routewise;
 use Routewise\Console\ScanCommand;
 use Routewise\Console\SyncCommand;
 use Routewise\Events\ToolCalled;
+use Routewise\Platform\Client;
+use Routewise\Platform\Guard;
 use Routewise\Platform\Reporter;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -14,7 +16,9 @@ class RoutewiseServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/routewise.php', 'routewise');
+        $this->app->singleton(Client::class);
         $this->app->singleton(Reporter::class);
+        $this->app->singleton(Guard::class);
     }
 
     public function boot(): void
